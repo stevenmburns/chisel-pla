@@ -22,34 +22,20 @@ class Pla(cubes : Seq[String]) extends Module {
 }
 
 object MainXor extends App {
-  // These lines generate the Verilog output
-  println(
-    new (chisel3.stage.ChiselStage).emitVerilog(
-      new Pla(Seq(
-        "110",
-        "010",
-        "001",
-        "111"
-      )),
-      Array(
-        "--emission-options=disableMemRandomization,disableRegisterRandomization"
-      )
-    )
-  )
+  println(getVerilogString(
+    new Pla(Seq(
+      "110",
+      "010",
+      "001",
+      "111"
+    ))))
 }
 
 object MainMaj extends App {
-  // These lines generate the Verilog output
-  println(
-    new (chisel3.stage.ChiselStage).emitVerilog(
-      new Pla(Seq(
-        "11-",
-        "-11",
-        "1-1"
-      )),
-      Array(
-        "--emission-options=disableMemRandomization,disableRegisterRandomization"
-      )
-    )
-  )
+  println(getVerilogString(
+    new Pla(Seq(
+      "11-",
+      "-11",
+      "1-1"
+    ))))
 }
