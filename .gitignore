@@ -2,6 +2,7 @@ test_run_dir/*
 target/
 project/project/target
 project/target
+out/
 
 *~
 \#*\#
