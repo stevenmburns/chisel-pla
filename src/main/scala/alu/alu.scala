@@ -48,10 +48,7 @@ class AluMMX extends AluIfc {
     val bn = WireInit(init=b)
     when (opcode === 1.U) {
       ci := true.B
-      bn(0) := ~b(0)
-      bn(1) := ~b(1)
-      bn(2) := ~b(2)
-      bn(3) := ~b(3)
+      for {i <- 0 until 4} bn(i) := ~b(i)
     }
 
     val sa1 = WireInit(init=ci)
@@ -86,11 +83,7 @@ class AluMMX extends AluIfc {
       z1 := a1 + b1 + ci
     }
 
-    z(0) := z1(15,0)
-    z(1) := z1(32,17)
-    z(2) := z1(49,34)
-    z(3) := z1(66,51)
-
+    for {i <- 0 until 4} z(i) := z1(i*17+15,i*17)
   }
 
   printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
