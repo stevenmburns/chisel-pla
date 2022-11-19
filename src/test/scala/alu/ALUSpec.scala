@@ -8,6 +8,30 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
+class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluIfc {
+
+  val same = IO(Output(Bool()))
+
+  val u0 = Module(factory0())
+  val u1 = Module(factory1())
+
+  u0.opcode := opcode
+  u1.opcode := opcode
+
+  u0.mode := mode
+  u1.mode := mode
+
+  u0.a := a
+  u0.b := b
+  u1.a := a
+  u1.b := b
+
+  z := u0.z
+  same := u0.z === u1.z
+}
+
+
+
 class AluSpecTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
 
   "Alu should work" in {
@@ -217,7 +241,51 @@ class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselSca
         }
       }
 
+      val m1 = (1<<16)-1
+      set_and_check(1, 0, Seq(0,1,2,3), Seq(3,2,1,0))
+      set_and_check(1, 1, Seq(0,1,2,3), Seq(3,2,1,0))
+      set_and_check(1, 2, Seq(0,1,2,3), Seq(3,2,1,0))
+      set_and_check(1, 3, Seq(0,1,2,3), Seq(3,2,1,0))
+      set_and_check(1, 0, Seq(m1,m1,m1,m1), Seq(1,0,0,0))
+      set_and_check(2, 0, Seq(m1,m1,m1,m1), Seq(1,0,0,0))
+      set_and_check(4, 0, Seq(m1,m1,m1,m1), Seq(1,0,0,0))
+      set_and_check(1, 1, Seq(1,0,0,0), Seq(1,1,1,1))
+      set_and_check(2, 1, Seq(1,0,0,0), Seq(1,0,1,0))
+      set_and_check(4, 1, Seq(1,0,0,0), Seq(1,0,0,0))
 
+      val rnd = new Random()
+
+      for {i <- 0 until 1000} {
+        val mode = Seq(1,2,4)(rnd.nextInt(3))
+        val opcode = Seq(0,1,2,3)(rnd.nextInt(4))
+        val a = for {j <- 0 until 4} yield BigInt(16, rnd)
+        val b = for {j <- 0 until 4} yield BigInt(16, rnd)
+
+        set_and_check(mode, opcode, a, b)
+      }
+    }
+  }
+}
+
+class AluMiterTester(factory : () => AluMiter) extends AnyFreeSpec with ChiselScalatestTester {
+
+  "Alu should work" in {
+    test(factory()) { dut =>
+
+
+
+      def set_and_check(mode: Int, opcode: Int,
+        a : Seq[BigInt], b : Seq[BigInt]) : Unit = {
+
+        dut.mode.poke(mode)
+        dut.opcode.poke(opcode)
+        for {i <- 0 until 4} {
+          dut.a(i).poke(a(i))
+          dut.b(i).poke(b(i))
+        }
+        dut.clock.step()
+        dut.same.expect(1)
+      }
 
       val m1 = (1<<16)-1
       set_and_check(1, 0, Seq(0,1,2,3), Seq(3,2,1,0))
@@ -245,7 +313,7 @@ class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselSca
   }
 }
 
-
-//class AluSpecTest extends AluSpecTester(() => new Alu) 
-//class AluMMXSpecTest extends AluSpecTester(() => new AluMMX)
+class AluSpecTest extends AluSpecTester(() => new Alu) 
+class AluMMXSpecTest extends AluSpecTester(() => new AluMMX)
 class AluMMXRandomTest extends AluRandomTester(() => new AluMMX)
+class AluMiterTest extends AluMiterTester(() => new AluMiter(() => new Alu, () => new AluMMX))
