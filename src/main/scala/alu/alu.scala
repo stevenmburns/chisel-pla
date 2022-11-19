@@ -53,46 +53,49 @@ object KPG {
 }
 
 class AluMMX extends AluIfc {
-  {
-    val ci = WireInit(init=false.B)
-    val bn = WireInit(init=b)
-    val s1 = WireInit(init=KPG.kill)
-    val s2 = WireInit(init=KPG.kill)
+  z := DontCare
 
-    when (opcode === 1.U) {
-      ci := true.B
-      for {i <- 0 until 4} bn(i) := ~b(i)
-      s1 := KPG.gen
-      s2 := KPG.gen
-    }
+  val ci = WireInit(init=false.B)
+  val bn = WireInit(init=b)
+  val s1 = WireInit(init=KPG.kill)
+  val s2 = WireInit(init=KPG.kill)
 
-    when (mode === 2.U || mode === 4.U) { s1 := KPG.prop }
-    when (mode === 4.U) { s2 := KPG.prop }
+  when (opcode === 1.U) {
+    ci := true.B
+    for {i <- 0 until 4} bn(i) := ~b(i)
+    s1 := KPG.gen
+    s2 := KPG.gen
+  }
 
-    val a1 = a(3)  ## s1.a ## a(2)  ## s2.a ## a(1)  ## s1.a ## a(0)
-    val b1 = bn(3) ## s1.b ## bn(2) ## s2.b ## bn(1) ## s1.b ## bn(0)
+  when (mode === 2.U || mode === 4.U) { s1 := KPG.prop }
+  when (mode === 4.U) { s2 := KPG.prop }
 
-    val z1 = WireInit(UInt(67.W),init=DontCare)
+  val a1 = a(3)  ## s1.a ## a(2)  ## s2.a ## a(1)  ## s1.a ## a(0)
+  val b1 = bn(3) ## s1.b ## bn(2) ## s2.b ## bn(1) ## s1.b ## bn(0)
 
-    for { (op, f) <- opcodes } {
-      if (op >= 2) {
-        when (opcode === op.U) {
-          z1 := f(a1, b1)
+  for { (op, f) <- opcodes } {
+    if (op >= 2) {
+      when (opcode === op.U) {
+        for {((aa, bb), zz) <- (a zip b) zip z} {
+          zz := f(aa, bb)
         }
       }
     }
+  }
 
-    when (opcode < 2.U) {
-      z1 := a1 + b1 + ci
-    }
-
+  when (opcode < 2.U) {
+    val z1 = a1 + b1 + ci
     for {i <- 0 until 4} z(i) := z1(i*17+15,i*17)
   }
 
   printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
 }
 
-object Main extends App {
+object MainAlu extends App {
   println(getVerilogString(new Alu))
+}
+
+object MainAluMMX extends App {
+  println(getVerilogString(new AluMMX))
 }
 
