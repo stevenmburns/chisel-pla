@@ -1,8 +1,7 @@
 package alu
-
 import chisel3._
-
 import chisel3.util._
+import chisel3.experimental.BundleLiterals._
 
 class AluIfc extends Module {
   val a = IO(Input(Vec(4, UInt(16.W))))
@@ -42,32 +41,36 @@ class Alu extends AluIfc {
   printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
 }
 
+class KPG extends Bundle {
+  val a = Bool()
+  val b = Bool()
+}
+
+object KPG {
+  val kill = (new KPG).Lit(_.a -> false.B, _.b -> false.B)
+  val prop = (new KPG).Lit(_.a -> false.B, _.b -> true.B)
+  val gen  = (new KPG).Lit(_.a -> true.B,  _.b -> true.B)
+}
+
 class AluMMX extends AluIfc {
   {
     val ci = WireInit(init=false.B)
     val bn = WireInit(init=b)
+    val s1 = WireInit(init=KPG.kill)
+    val s2 = WireInit(init=KPG.kill)
+
     when (opcode === 1.U) {
       ci := true.B
       for {i <- 0 until 4} bn(i) := ~b(i)
+      s1 := KPG.gen
+      s2 := KPG.gen
     }
 
-    val sa1 = WireInit(init=ci)
-    val sb1 = WireInit(init=ci)
-    val sa2 = WireInit(init=ci)
-    val sb2 = WireInit(init=ci)
+    when (mode === 2.U || mode === 4.U) { s1 := KPG.prop }
+    when (mode === 4.U) { s2 := KPG.prop }
 
-    when (mode === 2.U || mode === 4.U) {
-      sa1 := false.B
-      sb1 := true.B
-    }
-
-    when (mode === 4.U) {
-      sa2 := false.B
-      sb2 := true.B
-    }
-
-    val a1 = a(3)  ## sa1 ## a(2)  ## sa2 ## a(1)  ## sa1 ## a(0)
-    val b1 = bn(3) ## sb1 ## bn(2) ## sb2 ## bn(1) ## sb1 ## bn(0)
+    val a1 = a(3)  ## s1.a ## a(2)  ## s2.a ## a(1)  ## s1.a ## a(0)
+    val b1 = bn(3) ## s1.b ## bn(2) ## s2.b ## bn(1) ## s1.b ## bn(0)
 
     val z1 = WireInit(UInt(67.W),init=DontCare)
 
