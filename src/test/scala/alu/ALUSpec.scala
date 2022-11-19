@@ -1,5 +1,3 @@
-// See README.md for license details.
-
 package alu
 
 import chisel3._
@@ -9,28 +7,17 @@ import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
 class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluIfc {
-
   val same = IO(Output(Bool()))
 
-  val u0 = Module(factory0())
-  val u1 = Module(factory1())
-
-  u0.opcode := opcode
-  u1.opcode := opcode
-
-  u0.mode := mode
-  u1.mode := mode
-
-  u0.a := a
-  u0.b := b
-  u1.a := a
-  u1.b := b
-
-  z := u0.z
-  same := u0.z === u1.z
+  def stamp(factory: () => AluIfc, mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]) : Vec[UInt] = {
+    val u = Module(factory())
+    u.opcode := opcode; u.mode := mode; u.a := a; u.b := b
+    u.z
+  }
+  z := stamp(factory0, mode, opcode, a, b)
+  val z1 = stamp(factory1, mode, opcode, a, b)
+  same := z === z1
 }
-
-
 
 class AluSpecTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
 
@@ -188,24 +175,17 @@ class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselSca
     test(factory()) { dut =>
 
       def alu_aux(opcode: BigInt, a: Seq[BigInt], b: Seq[BigInt], mask: BigInt) : Seq[BigInt] = {
-        val z = for {(aa, bb) <- a zip b} yield {
-          if (opcode == 0) {
-            (aa + bb) & mask
-          } else if (opcode == 1) {
-            (aa - bb) & mask
-          } else if (opcode == 2) {
-            aa & bb
-          } else {
-            aa | bb
-          }
+        for {(aa, bb) <- a zip b} yield opcode.toInt match {
+          case 0 => (aa + bb) & mask
+          case 1 => (aa - bb) & mask
+          case 2 => aa & bb
+          case 3 => aa | bb
+          case _ => throw new IllegalArgumentException
         }
-        z
       }
 
       def alu_gold(mode: BigInt, opcode: BigInt, a: Seq[BigInt], b: Seq[BigInt]): Seq[BigInt] = {
-
         val m = (1<<16) - 1
-
         if (mode == 1) {
           alu_aux( opcode, a, b, (BigInt(1)<<16)-1)
         } else if ( mode == 2) {
@@ -271,8 +251,6 @@ class AluMiterTester(factory : () => AluMiter) extends AnyFreeSpec with ChiselSc
 
   "Alu should work" in {
     test(factory()) { dut =>
-
-
 
       def set_and_check(mode: Int, opcode: Int,
         a : Seq[BigInt], b : Seq[BigInt]) : Unit = {
