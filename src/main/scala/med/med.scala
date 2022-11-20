@@ -17,6 +17,8 @@ class CellIfc[TD <: Data, TS <: Data]( protoD : TD, protoS : TS)( pos : Option[(
     val col = Input( protoD)
     val row = Input( protoD)
     val up = Input( protoS)
+
+
     val lf = Input( protoS)
     val dg = Input( protoS)
     val out = Output( protoS)
@@ -232,17 +234,10 @@ class CellArray[TD <: Data, TS <: Data]
     protoD : TD, protoS : TS,
     factory : (Int,Int) => CellIfc[TD,TS],
     boundary : (Int,Int) => TS)
-    extends CellArrayIfc( M, N, protoD, protoS) with pipe_insert_transform.HldRetimer{
+    extends CellArrayIfc( M, N, protoD, protoS) {
 
 //  override val delay : Int = M+N-2
   override val delay : Int = 0
-
-//  annotate(core.ChiselAnnotation(this, classOf[firrtl.transforms.Flatten], ""))
-//  hld_retime( this, clockPeriod=7, shouldInline=true)
-
-// -fct reporters.ReportArea
-// -fct reporters.InlineAndReportAreaTimingCompact
-// -fct reporters.InlineAndReportAreaTimingTradeoff
 
   val cells = IndexedSeq.tabulate( M, N){ (i,j) => Module( factory(i,j))}
 
@@ -289,10 +284,6 @@ class CellArrayRetimed[TD <: Data, TS <: Data]
 
   override val delay : Int = M + N - 2
 
-//  annotate(core.ChiselAnnotation(this, classOf[reporters.InlineAndReportAreaTimingTradeoff], ""))
-//  annotate(core.ChiselAnnotation(this, classOf[reporters.InlineAndReportTimingCompact], ""))
-//  annotate(core.ChiselAnnotation(this, classOf[reporters.InlineAndReportArea], ""))
-
   val cells = IndexedSeq.tabulate( M, N){ (i,j) => Module( factory(i,j))}
   val outs = IndexedSeq.tabulate( M, N){ (i,j) => Wire( protoS)}
 
@@ -329,31 +320,31 @@ class CellArrayRetimed[TD <: Data, TS <: Data]
 
 object CellArray33Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArray( 3, 3, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary))
+  println(getVerilogString(new CellArray( 3, 3, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
 object CellArray44Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArray( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary))
+  println(getVerilogString(new CellArray( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
 object CellArrayRetimed44Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArrayRetimed( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary))
+  println(getVerilogString(new CellArrayRetimed( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
 object CellArray55Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArray( 5, 5, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary))
+  println(getVerilogString(new CellArray( 5, 5, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
 
 object CellArray1616Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArray( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary))
+  println(getVerilogString(new CellArray( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
 
 object CellArrayRetimed1616Driver extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
-  Driver.execute( args, () => new CellArrayRetimed( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary))
+  println(getVerilogString(new CellArrayRetimed( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
 

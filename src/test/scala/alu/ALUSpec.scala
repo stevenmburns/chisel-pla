@@ -6,9 +6,34 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
-class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluIfc {
-  val same = IO(Output(Bool()))
+object AluObj {
+  def apply(mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]): Vec[UInt] = {
+    val u = Module(new Alu)
+    u.opcode := opcode; u.mode := mode; u.a := a; u.b := b
+    u.z
+  }
+}
 
+object AluMMXObj {
+  def apply(mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]): Vec[UInt] = {
+    val u = Module(new AluMMX)
+    u.opcode := opcode; u.mode := mode; u.a := a; u.b := b
+    u.z
+  }
+}
+
+class AluMiterIfc extends AluIfc {
+  val same = IO(Output(Bool()))
+}
+
+class AluMiterAlt(factory0: (UInt, UInt, Vec[UInt], Vec[UInt]) => Vec[UInt],
+                  factory1: (UInt, UInt, Vec[UInt], Vec[UInt]) => Vec[UInt]) extends AluMiterIfc {
+  z := factory0(mode, opcode, a, b)
+  val z1 = factory1(mode, opcode, a, b)
+  same := z === z1
+}
+
+class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluMiterIfc {
   def stamp(factory: () => AluIfc, mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]) : Vec[UInt] = {
     val u = Module(factory())
     u.opcode := opcode; u.mode := mode; u.a := a; u.b := b
@@ -247,7 +272,7 @@ class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselSca
   }
 }
 
-class AluMiterTester(factory : () => AluMiter) extends AnyFreeSpec with ChiselScalatestTester {
+class AluMiterTester(factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester {
 
   "Alu should work" in {
     test(factory()) { dut =>
@@ -295,3 +320,4 @@ class AluSpecTest extends AluSpecTester(() => new Alu)
 class AluMMXSpecTest extends AluSpecTester(() => new AluMMX)
 class AluMMXRandomTest extends AluRandomTester(() => new AluMMX)
 class AluMiterTest extends AluMiterTester(() => new AluMiter(() => new Alu, () => new AluMMX))
+class AluMiterAltTest extends AluMiterTester(() => new AluMiterAlt(AluObj.apply, AluMMXObj.apply))

@@ -1,30 +1,32 @@
 // Example
 package GCD
 
-import org.scalatest.{ Matchers, FreeSpec, FlatSpec}
-
 import chisel3._
-import chisel3.iotesters._
+import chiseltest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.freespec.AnyFreeSpec
+import chisel3.experimental.BundleLiterals._
+import scala.util.Random
 
-class GenericTest( factory : () => GCDIfc) extends FlatSpec with Matchers {
-  it should "meet all PeekPokeTester expectations" in {
-    chisel3.iotesters.Driver( factory, "treadle") { c => new PeekPokeTester(c) {
+class GenericTester( factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester {
+  "GCD should work" in {
+    test(factory()) { dut =>
 
       def run( u : BigInt, v : BigInt, z : BigInt) : Unit = {
-        poke( c.io.ld, 1)
-        poke( c.io.u, u)
-        poke( c.io.v, v)
-        step(1)
-        poke( c.io.ld, 0)
-        step(1)
+        dut.io.ld.poke(1)
+        dut.io.u.poke(u)
+        dut.io.v.poke(v)
+        dut.clock.step()
+        dut.io.ld.poke(0)
+        dut.clock.step()
         var count : Int = 0
-        while( peek( c.io.done) == 0 && count < 200) {
+        while( dut.io.done.peek() == 0 && count < 200) {
 //          println( s"Running: ${peek( c.io.z)}")
-          step(1)
+          dut.clock.step()
           count += 1
         }
 //        println( s"Done: ${peek( c.io.z)}")
-        expect( c.io.z, z)
+        dut.io.z.expect(z)
       }
 
       run( 100, 25, 25)
@@ -33,6 +35,7 @@ class GenericTest( factory : () => GCDIfc) extends FlatSpec with Matchers {
       run( Fib(30), Fib(31), 1)
       run( 3*7*11*64,13*3*7*128, 3*7*64)
 
+      val rnd = new Random()
       rnd.setSeed(47)
 
       for { idx <- 0 until 1000} {
@@ -41,17 +44,17 @@ class GenericTest( factory : () => GCDIfc) extends FlatSpec with Matchers {
         val z = GCD(u , v)
         run( u, v, z)
       }
-    }} should be (true)
+    }
   }
 }
 
-class BinaryGCDTest extends GenericTest( () => new BinaryGCD)
-class BinaryGCDSimpleTest extends GenericTest( () => new BinaryGCDSimple)
-class BinaryGCDNoBigShifterTest extends GenericTest( () => new BinaryGCDNoBigShifter)
-class EuclidGCDTest extends GenericTest( () => new EuclidGCD)
+class BinaryGCDTest extends GenericTester( () => new BinaryGCD)
+class BinaryGCDSimpleTest extends GenericTester( () => new BinaryGCDSimple)
+class BinaryGCDNoBigShifterTest extends GenericTester( () => new BinaryGCDNoBigShifter)
+class EuclidGCDTest extends GenericTester( () => new EuclidGCD)
 
 
-class SoftwareTest extends FreeSpec with Matchers {
+class SoftwareTest extends AnyFreeSpec with Matchers {
   "GCD" - {
     "GCD with second multiple of first works" in {
       val (u,v) = (25,100)
@@ -68,7 +71,7 @@ class SoftwareTest extends FreeSpec with Matchers {
   }
 }
 
-class SoftwareTest2 extends FreeSpec with Matchers {
+class SoftwareTest2 extends AnyFreeSpec with Matchers {
   "GCD2" - {
     "GCD with second multiple of first works" in {
       val (u,v) = (25,100)
@@ -89,7 +92,7 @@ class SoftwareTest2 extends FreeSpec with Matchers {
   }
 }
 
-class FibTest extends FreeSpec with Matchers {
+class FibTest extends AnyFreeSpec with Matchers {
   "Fib" - {
     "First 20 recursive, foldLeft Fibs equivalent" in {
       for ( n <- 0 until 20) {

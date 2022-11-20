@@ -11,9 +11,6 @@ class GCDIfc extends Module {
     val z = Output( UInt(64.W))
     val done = Output( Bool())
   })
-//  annotate(core.ChiselAnnotation(this, classOf[firrtl.transforms.Flatten], ""))
-//  annotate(core.ChiselAnnotation(this, classOf[reporters.ReportTimingFull], ""))
-//  annotate(core.ChiselAnnotation(this, classOf[reporters.ReportArea], ""))
 }
 
 class EuclidGCD extends GCDIfc {
@@ -237,30 +234,17 @@ object Fib {
 }
 
 object BinaryGCDDriver extends App {
-  Driver.execute( args, () => new BinaryGCD)
+  println(getVerilogString(new BinaryGCD))
 }
 
 object BinaryGCDNoBigShifterDriver extends App {
-  Driver.execute( args, () => new BinaryGCDNoBigShifter)
+  println(getVerilogString(new BinaryGCDNoBigShifter))
 }
 
 object BinaryGCDSimpleDriver extends App {
-  Driver.execute( args, () => new BinaryGCDSimple)
+  println(getVerilogString(new BinaryGCDSimple))
 }
 
 object EuclidGCDDriver extends App {
-  Driver.execute( args, () => new EuclidGCD)
+  println(getVerilogString(new EuclidGCD))
 }
-
-object BinaryGCDNoBigShifterReporter extends App {
-  Driver.execute( args ++ Seq("-fct","reporters.InlineAndReportTiming"), () => new BinaryGCDNoBigShifter)
-}
-
-object BinaryGCDSimpleReporter extends App {
-  Driver.execute( args ++ Seq("-fct","reporters.InlineAndReportTiming"), () => new BinaryGCDSimple)
-}
-
-object EuclidGCDReporter extends App {
-  Driver.execute( args ++ Seq("-fct","reporters.InlineAndReportTiming"), () => new EuclidGCD)
-}
-
