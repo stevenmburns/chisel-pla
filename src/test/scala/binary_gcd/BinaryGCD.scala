@@ -8,8 +8,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
-class GenericTester( factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester {
-  "GCD should work" in {
+class GCDTester( tag: String, factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester {
+  s"$tag should work" in {
     test(factory()) { dut =>
 
       def run( u : BigInt, v : BigInt, z : BigInt) : Unit = {
@@ -20,12 +20,13 @@ class GenericTester( factory : () => GCDIfc) extends AnyFreeSpec with ChiselScal
         dut.io.ld.poke(0)
         dut.clock.step()
         var count : Int = 0
-        while( dut.io.done.peek() == 0 && count < 200) {
-//          println( s"Running: ${peek( c.io.z)}")
+
+        while(dut.io.done.peekInt() == 0 && count < 200) {
+          //println( s"Running: ${dut.io.z.peek()}")
           dut.clock.step()
           count += 1
         }
-//        println( s"Done: ${peek( c.io.z)}")
+        //println( s"Done: ${dut.io.z.peek()}")
         dut.io.z.expect(z)
       }
 
@@ -48,11 +49,10 @@ class GenericTester( factory : () => GCDIfc) extends AnyFreeSpec with ChiselScal
   }
 }
 
-class BinaryGCDTest extends GenericTester( () => new BinaryGCD)
-class BinaryGCDSimpleTest extends GenericTester( () => new BinaryGCDSimple)
-class BinaryGCDNoBigShifterTest extends GenericTester( () => new BinaryGCDNoBigShifter)
-class EuclidGCDTest extends GenericTester( () => new EuclidGCD)
-
+class BinaryGCDTest extends GCDTester("BinaryGCD", () => new BinaryGCD)
+class BinaryGCDSimpleTest extends GCDTester("BinaryGCDSimple", () => new BinaryGCDSimple)
+class BinaryGCDNoBigShifterTest extends GCDTester("BinaryGCDNoBigShifter", () => new BinaryGCDNoBigShifter)
+class EuclidGCDTest extends GCDTester("EuclidGCD", () => new EuclidGCD)
 
 class SoftwareTest extends AnyFreeSpec with Matchers {
   "GCD" - {
