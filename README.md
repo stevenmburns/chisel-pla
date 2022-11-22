@@ -37,7 +37,7 @@ Enter "6" (without the quotes) to see the verilog for the optimized ALU.
 
 ## Install Chisel
 
-If you need this two work instead Intel, you'll need to do the following steps once:
+If you need this to work inside Intel, you'll need to do the following steps once:
 
 - Find a work disk. Set the environment variable `WORK` to its full path. Then issue:
 
@@ -68,6 +68,5 @@ setenv HTTPS_PROXY http://proxy-us.intel.com:912
 setenv HTTP_PROXY http://proxy-us.intel.com:912
 setenv http_proxy http://proxy-us.intel.com:912
 setenv https_proxy http://proxy-us.intel.com:912
-
 ```
 
