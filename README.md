@@ -1,8 +1,6 @@
 # Chisel Examples
-===============
 
 A number of examples showing of Chisel's advantanges as a Hardware Construction Language.
-
 
 ## Quick Start
 
