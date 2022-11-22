@@ -13,7 +13,7 @@ To print out the generated verilog:
 ```
 sbt run
 ```
-and interactively chose the driver to run. I current get this in response to `sbt run`:
+and interactively chose the driver to run. I currently get this in response to `sbt run`:
 ```
 Multiple main classes detected. Select one to run:
  [1] GCD.BinaryGCDDriver
@@ -35,11 +35,11 @@ Enter number:
 ```
 Enter "6" (without the quotes) to see the verilog for the optimized ALU.
 
-##Install Chisel
+## Install Chisel
 
 If you need this two work instead Intel, you'll need to do the following steps once:
 
--- Find a work disk. Call it $WORK. Then issue:
+- Find a work disk. Set the environment variable `WORK` to its full path. Then issue:
 
 ```
 mkdir $WORK/.sbt
@@ -47,14 +47,14 @@ mkdir $WORK/.ivy2
 mkdir $WORK/.cache
 ```
 
--- Make sure `~/.sbt`, `~/.ivy2`, and `~/.cache` are empty. Then issue:
+- Make sure `~/.sbt`, `~/.ivy2`, and `~/.cache` are empty. Then issue:
 ```
 rm -rf ~/.sbt
 rm -rf ~/.ivy2
 ```
 (If `~/.cache` is not empty, either remove it similarly or move the contents to `$WORK/.cache`)
 
--- Use links in the home directory to the work disk so you don’t fill up your home directory.
+- Use links in the home directory to the work disk so you don’t fill up your home directory.
 ```
 cd ~
 ln -s $WORK/.sbt .
@@ -62,7 +62,7 @@ ln -s $WORK/.ivy2 .
 ln -s $WORK/.cache .
 ```
 
--- Set proxies
+- Set proxies
 ```
 setenv HTTPS_PROXY http://proxy-us.intel.com:912
 setenv HTTP_PROXY http://proxy-us.intel.com:912
