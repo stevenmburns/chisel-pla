@@ -233,18 +233,18 @@ object Fib {
     ((0 until n).foldLeft( (BigInt(0),BigInt(1))){ case ((f0,f1),_) => (f1,f0+f1)})._1
 }
 
-object BinaryGCDDriver extends App {
+object BinaryGCD extends App {
   println(getVerilogString(new BinaryGCD))
 }
 
-object BinaryGCDNoBigShifterDriver extends App {
+object BinaryGCDNoBigShifter extends App {
   println(getVerilogString(new BinaryGCDNoBigShifter))
 }
 
-object BinaryGCDSimpleDriver extends App {
+object BinaryGCDSimple extends App {
   println(getVerilogString(new BinaryGCDSimple))
 }
 
-object EuclidGCDDriver extends App {
+object EuclidGCD extends App {
   println(getVerilogString(new EuclidGCD))
 }
