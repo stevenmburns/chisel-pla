@@ -8,6 +8,6 @@ out/
 \#*\#
 .\#*
 
-Pla.v
-Pla.fir
-Pla.anno.json
+*.v
+*.fir
+*.anno.json
