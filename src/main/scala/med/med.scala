@@ -25,9 +25,6 @@ class CellIfc[TD <: Data, TS <: Data]( protoD : TD, protoS : TS)( pos : Option[(
   })
 }
 
-
-
-
 class CellFixture[TD <: Data, TS <: Data]( factory : () => CellIfc[TD,TS], protoD : TD, protoS : TS) extends CellIfc[TD,TS]( protoD, protoS)( None) {
 
   def restrict( x : TS) : TS = {
@@ -72,14 +69,12 @@ object Cell {
 class Cell[TD <: UInt, TS <: UInt]( protoD : TD, protoS : TS)( pos : Option[(Int,Int)] = None) extends
   CellIfc[TD,TS]( protoD, protoS)( pos) {
 
-
-  val dg_score = WireInit( io.dg)
-  when ( io.col =/= io.row) { dg_score := io.dg + 2.U}
-
-  io.out := min( min( io.up, io.lf) + 1.U, dg_score)
+  io.out := min( min( io.up, io.lf) + 1.U,
+                 Mux(io.col =/= io.row, io.dg + 2.U, io.dg))
 
 }
 
+/*
 class Cell2[TD <: UInt, TS <: UInt]( protoD : TD, protoS : TS)( pos : Option[(Int,Int)] = None) extends
   CellIfc[TD,TS]( protoD, protoS)( pos) {
 
@@ -90,6 +85,7 @@ class Cell2[TD <: UInt, TS <: UInt]( protoD : TD, protoS : TS)( pos : Option[(In
   io.out := min( min( io.up + 1.U, io.lf + 1.U), dg_score)
 
 }
+ */
 
 class MockData extends Bundle {
   val ts = SInt(32.W)
@@ -318,32 +314,32 @@ class CellArrayRetimed[TD <: Data, TS <: Data]
 
 }
 
-object CellArray33Driver extends App {
+object CellArray33 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArray( 3, 3, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
-object CellArray44Driver extends App {
+object CellArray44 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArray( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
-object CellArrayRetimed44Driver extends App {
+object CellArrayRetimed44 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArrayRetimed( 4, 4, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i,j))), Cell.boundary)))
 }
 
-object CellArray55Driver extends App {
+object CellArray55 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArray( 5, 5, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
 
-object CellArray1616Driver extends App {
+object CellArray1616 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArray( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
 
-object CellArrayRetimed1616Driver extends App {
+object CellArrayRetimed1616 extends App {
   val (protoD,protoS) = (UInt(2.W),UInt(8.W))
   println(getVerilogString(new CellArrayRetimed( 16, 16, protoD, protoS, (i,j) => new Cell( protoD, protoS)( Some((i, j))), Cell.boundary)))
 }
