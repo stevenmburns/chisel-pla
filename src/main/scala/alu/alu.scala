@@ -88,14 +88,16 @@ class AluMMX extends AluIfc {
     for {i <- 0 until 4} z(i) := z1(i*17+15,i*17)
   }
 
-  printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
+  //printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
 }
 
+// sbt 'runMain alu.MainAlu'
 object MainAlu extends App {
-  println(getVerilogString(new Alu))
+  println(getVerilogString(new Alu, Array("--emission-options=disableMemRandomization,disableRegisterRandomization")))
 }
 
+// sbt 'runMain alu.MainAluMMX'
 object MainAluMMX extends App {
-  println(getVerilogString(new AluMMX))
+  println(getVerilogString(new AluMMX, Array("--emission-options=disableMemRandomization,disableRegisterRandomization")))
 }
 
