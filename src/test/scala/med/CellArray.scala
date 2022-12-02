@@ -12,7 +12,7 @@ import scala.math
 class CellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester {
 
   s"$tag should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       val delay = dut.delay
 
@@ -21,7 +21,7 @@ class CellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) ex
 
       def advance = {
         for ( tup <- q.dequeueFirst( _._1 == ts)) {
-          println( s"Dequeing ${tup} ...")
+          println( s"Dequeueing ${tup} ...")
           dut.io.out.expect(tup._2)
         }
         dut.clock.step()
@@ -52,12 +52,12 @@ class CellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) ex
   }
 }
 
-class CellArrayTest( M : Int, N : Int) extends CellArrayTester( "ArrayTest", () => {
+class CellArrayTest( M : Int, N : Int) extends CellArrayTester( s"ArrayTest_${M}_${N}", () => {
   val (protoD,protoS) = (UInt(1.W),UInt(8.W))
   new CellArray( M, N, protoD, protoS, (i,j) => new Cell( protoD, protoS)(), Cell.boundary)
 })
 
-class CellArrayRetimedTest( M : Int, N : Int) extends CellArrayTester( "ArrayTest", () => {
+class CellArrayRetimedTest( M : Int, N : Int) extends CellArrayTester( s"ArrayRetimedTest_${M}_${N}", () => {
   val (protoD,protoS) = (UInt(1.W),UInt(8.W))
   new CellArrayRetimed( M, N, protoD, protoS, (i,j) => new Cell( protoD, protoS)(), Cell.boundary)
 })

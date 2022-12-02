@@ -12,16 +12,19 @@ class FifoIfc[T <: Data](gen: T) extends Module {
   })
 }
 
+class QueueFifoAlt[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
+  val m = Module(new Queue(gen, 16))
+  m.io.enq.valid := io.inp.valid
+  m.io.enq.bits := io.inp.bits
+  io.inp.ready := m.io.enq.ready
+
+  io.out <> m.io.deq
+  override val desiredName = s"QueueFifoAlt_${n}_${gen.getWidth}"
+}
+
 class QueueFifo[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
   io.out <> Queue(io.inp, n)
   override val desiredName = s"QueueFifo_${n}_${gen.getWidth}"
-}
-
-class QueueFifoAlt[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
-  val m = Module(new Queue(gen, 16))
-  m.io.enq <> io.inp
-  io.out <> m.io.deq
-  override val desiredName = s"QueueFifoAlt_${n}_${gen.getWidth}"
 }
 
 class BlockedStage[T <: Data](gen: T) extends FifoIfc(gen) {

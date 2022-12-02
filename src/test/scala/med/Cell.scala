@@ -14,7 +14,7 @@ class CellTester( tag : String, factory : () => CellIfc[UInt,UInt]) extends AnyF
 
 
   s"$tag should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       dut.io.row.poke(0)
       dut.io.col.poke(0)

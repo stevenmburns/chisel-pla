@@ -10,7 +10,7 @@ import chisel3.experimental.BundleLiterals._
 class MajSpec extends AnyFreeSpec with ChiselScalatestTester {
 
   "Maj should calculate 3-input majority" in {
-    test(new Pla(Seq("11-", "-11", "1-1"))) { dut =>
+    test(new Pla(Seq("11-", "-11", "1-1"))).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       dut.inp.poke(0)
       dut.clock.step()
@@ -51,7 +51,7 @@ class MajSpec extends AnyFreeSpec with ChiselScalatestTester {
 class XorSpec extends AnyFreeSpec with ChiselScalatestTester {
 
   "Xor should calculate three input parity" in {
-    test(new Pla(Seq("100", "010", "001", "111"))) { dut =>
+    test(new Pla(Seq("100", "010", "001", "111"))).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       dut.inp.poke(0)
       dut.clock.step()

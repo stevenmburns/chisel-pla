@@ -9,7 +9,7 @@ class EightState119Test extends AnyFreeSpec with ChiselScalatestTester {
   val fs = EightState119
 
   "EightState119 should work" in {
-    test(new FiringSquadArray( () => new FiringSquadSite(fs), 22)) { dut =>
+    test(new FiringSquadArray( () => new FiringSquadSite(fs), 22)).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       val inverseMap = for ( (k,v) <- fs.m) yield v -> k
 
@@ -37,8 +37,8 @@ class SixStateTest extends AnyFreeSpec with ChiselScalatestTester {
 
   val fs = SixState
 
-  "SixStatee should work" in {
-    test(new FiringSquadArray( () => new FiringSquadSite(fs), 22)) { dut =>
+  "SixState should work" in {
+    test(new FiringSquadArray( () => new FiringSquadSite(fs), 22)).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       val inverseMap = for ( (k,v) <- fs.m) yield v -> k
 

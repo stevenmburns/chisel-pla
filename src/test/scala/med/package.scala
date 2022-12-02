@@ -6,7 +6,7 @@ import org.scalatest.freespec.AnyFreeSpec
 
 class TSRTester(factory : () => TappedShiftRegisterModule) extends AnyFreeSpec with ChiselScalatestTester {
   "Tapped Shift Register should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       dut.io.inp.poke(47)
 

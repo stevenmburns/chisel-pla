@@ -10,7 +10,7 @@ import scala.util.Random
 
 class GCDTester( tag: String, factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester {
   s"$tag should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       def run( u : BigInt, v : BigInt, z : BigInt) : Unit = {
         dut.io.ld.poke(1)

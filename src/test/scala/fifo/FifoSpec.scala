@@ -4,14 +4,12 @@ import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
 
-class FifoSpecTester(factory : () => FifoIfc[UInt]) extends AnyFreeSpec with ChiselScalatestTester {
+class FifoSpecTester(tag: String, factory : () => FifoIfc[UInt]) extends AnyFreeSpec with ChiselScalatestTester {
 
   val rnd = new scala.util.Random()
-  val hashstr = f"${BigInt(32, rnd)}%8x"
-
   rnd.setSeed(47L)
 
-  s"Fifo${hashstr} should work" in {
+  s"$tag should work" in {
     test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
 
       /*
@@ -64,19 +62,20 @@ class FifoSpecTester(factory : () => FifoIfc[UInt]) extends AnyFreeSpec with Chi
 
         dut.clock.step()
       }
-      println(s"final inp_index = ${inp_index} final out_index = ${out_index}")
+      println(s"$tag final inp_index = ${inp_index} final out_index = ${out_index}")
     }
   }
 }
 
-class DecoupledStageSpecTest extends FifoSpecTester(() => new DecoupledStage(UInt(16.W)))
-class MooreStageSpecTest extends FifoSpecTester(() => new MooreStage(UInt(16.W)))
-class BlockedStageSpecTest extends FifoSpecTester(() => new BlockedStage(UInt(16.W)))
-class HalfStageSpecTest extends FifoSpecTester(() => new HalfStage(UInt(16.W)))
-class Chain_8_DecoupledStage_16SpecTest extends FifoSpecTester(() => new Chain(8, UInt(16.W), (x: UInt) => new DecoupledStage(x)))
-class Chain_8_MooreStage_16SpecTest extends FifoSpecTester(() => new Chain(8, UInt(16.W), (x: UInt) => new MooreStage(x)))
-class Chain_8_BlockedStage_16SpecTest extends FifoSpecTester(() => new Chain(8, UInt(16.W), (x: UInt) => new BlockedStage(x)))
-class Chain_8_HalfStage_16SpecTest extends FifoSpecTester(() => new Chain(8, UInt(16.W), (x: UInt) => new HalfStage(x)))
+class DecoupledStageSpecTest extends FifoSpecTester("DecoupledStage", () => new DecoupledStage(UInt(16.W)))
+class MooreStageSpecTest extends FifoSpecTester("MooreStage", () => new MooreStage(UInt(16.W)))
+class BlockedStageSpecTest extends FifoSpecTester("BlockedStage", () => new BlockedStage(UInt(16.W)))
+class HalfStageSpecTest extends FifoSpecTester("HalfStage", () => new HalfStage(UInt(16.W)))
+class Chain_8_DecoupledStage_16SpecTest extends FifoSpecTester("Chain_8_DecoupledStage", () => new Chain(8, UInt(16.W), (x: UInt) => new DecoupledStage(x)))
+class Chain_8_MooreStage_16SpecTest extends FifoSpecTester("Chain_8_MooreStage", () => new Chain(8, UInt(16.W), (x: UInt) => new MooreStage(x)))
+class Chain_8_BlockedStage_16SpecTest extends FifoSpecTester("Chain_8_BlockedStage", () => new Chain(8, UInt(16.W), (x: UInt) => new BlockedStage(x)))
+class Chain_8_HalfStage_16SpecTest extends FifoSpecTester("Chain_8_HalfStage", () => new Chain(8, UInt(16.W), (x: UInt) => new HalfStage(x)))
 
-class QueueFifo_8_16SpecTest extends FifoSpecTester(() => new QueueFifo(8, UInt(16.W)))
+class QueueFifo_8_16SpecTest extends FifoSpecTester("QueueFifo_8", () => new QueueFifo(8, UInt(16.W)))
+class QueueFifoAlt_8_16SpecTest extends FifoSpecTester("QueueFifoAlt_8", () => new QueueFifoAlt(8, UInt(16.W)))
 

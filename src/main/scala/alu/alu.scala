@@ -38,7 +38,7 @@ class Alu extends AluIfc {
     }
   }
 
-  printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
+  //printf("mode=%x opcode=%x a=%x b=%x z=%x\n", mode, opcode, a.asUInt, b.asUInt, z.asUInt)
 }
 
 class KPG extends Bundle {

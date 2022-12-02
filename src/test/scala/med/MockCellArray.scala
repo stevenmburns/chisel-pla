@@ -11,8 +11,8 @@ import scala.math
 
 class MockCellArrayTester( tag : String, factory : () => CellArrayIfc[MockData,MockScore]) extends AnyFreeSpec with ChiselScalatestTester {
 
-  s"$tag should work" in {
-    test(factory()) { dut =>
+  s"$tag should work with MockCellArrayTester" in {
+    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
       val delay = dut.delay
 
       for { ts <- 0 until (delay+20)} {
@@ -43,14 +43,14 @@ class MockCellArrayTester( tag : String, factory : () => CellArrayIfc[MockData,M
   }
 }
 
-class MockCellArrayTest( M : Int, N : Int) extends MockCellArrayTester( "MockCellArrayTest", {
+class MockCellArrayTest( M : Int, N : Int) extends MockCellArrayTester( s"MockCellArray_${M}_${N}", {
   val (protoD,protoS) = (new MockData, new MockScore)
   () => new CellArray( M, N, protoD.cloneType, protoS.cloneType, (i, j) => new MockCell( protoD.cloneType, protoS.cloneType)( Some( (i, j))), MockCell.boundary)
 })
 
 class MockCellArrayTest44 extends MockCellArrayTest( 4, 4)
 
-class MockCellArrayRetimedTest( M : Int, N : Int) extends MockCellArrayTester( "MockCellArrayRetimedTest", {
+class MockCellArrayRetimedTest( M : Int, N : Int) extends MockCellArrayTester( s"MockCellArrayRetimed_${M}_${N}", {
   val (protoD,protoS) = (new MockData, new MockScore)
   () => new CellArrayRetimed( M, N, protoD.cloneType, protoS.cloneType, (i,j) => new MockCell( protoD.cloneType, protoS.cloneType)( Some( (i, j))), MockCell.boundary, Some(MockCell.initD _), Some(MockCell.initS _))
 })

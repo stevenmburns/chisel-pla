@@ -11,3 +11,4 @@ out/
 *.v
 *.fir
 *.anno.json
+.bsp/
