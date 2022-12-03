@@ -7,12 +7,12 @@ import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 import scala.collection.mutable
 import scala.math
+import testutil._
 
-
-class CellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester {
+class CellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   s"$tag should work" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       val delay = dut.delay
 

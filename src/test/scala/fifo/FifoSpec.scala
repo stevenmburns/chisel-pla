@@ -4,13 +4,15 @@ import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
 
-class FifoSpecTester(tag: String, factory : () => FifoIfc[UInt]) extends AnyFreeSpec with ChiselScalatestTester {
+import testutil._
+
+class FifoSpecTester(tag: String, factory : () => FifoIfc[UInt]) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   val rnd = new scala.util.Random()
   rnd.setSeed(47L)
 
   s"$tag should work" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       /*
       dut.io.inp.initSource().setSourceClock(dut.clock)

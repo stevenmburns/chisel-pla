@@ -6,6 +6,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
+import testutil._
+
 object AluObj {
   def apply(mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]): Vec[UInt] = {
     val u = Module(new Alu)
@@ -44,10 +46,10 @@ class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluMite
   same := z === z1
 }
 
-class AluSpecTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluSpecTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   s"$tag should pass AluSpec tests" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
       dut.mode.poke(1)
 
       dut.opcode.poke(0)
@@ -194,10 +196,10 @@ class AluSpecTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec wit
   }
 }
 
-class AluRandomTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluRandomTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   s"$tag should pass AluRandom tests" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       def alu_aux(opcode: BigInt, a: Seq[BigInt], b: Seq[BigInt], mask: BigInt) : Seq[BigInt] = {
         for {(aa, bb) <- a zip b} yield opcode.toInt match {
@@ -272,10 +274,10 @@ class AluRandomTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec w
   }
 }
 
-class AluMiterTester(tag: String, factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluMiterTester(tag: String, factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   s"$tag should pass AluMiter tests" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       def set_and_check(mode: Int, opcode: Int,
         a : Seq[BigInt], b : Seq[BigInt]) : Unit = {

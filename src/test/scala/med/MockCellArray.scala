@@ -7,12 +7,12 @@ import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 import scala.collection.mutable
 import scala.math
+import testutil._
 
-
-class MockCellArrayTester( tag : String, factory : () => CellArrayIfc[MockData,MockScore]) extends AnyFreeSpec with ChiselScalatestTester {
+class MockCellArrayTester( tag : String, factory : () => CellArrayIfc[MockData,MockScore]) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   s"$tag should work with MockCellArrayTester" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
       val delay = dut.delay
 
       for { ts <- 0 until (delay+20)} {

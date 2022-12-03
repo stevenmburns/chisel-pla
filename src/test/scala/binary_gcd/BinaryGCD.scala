@@ -8,9 +8,11 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
-class GCDTester( tag: String, factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester {
+import testutil._
+
+class GCDTester( tag: String, factory : () => GCDIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
   s"$tag should work" in {
-    test(factory()).withAnnotations(Seq(TreadleBackendAnnotation)) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       def run( u : BigInt, v : BigInt, z : BigInt) : Unit = {
         dut.io.ld.poke(1)
