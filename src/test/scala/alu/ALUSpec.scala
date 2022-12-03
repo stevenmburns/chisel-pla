@@ -6,6 +6,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
 import scala.util.Random
 
+import testutil._
+
 object AluObj {
   def apply(mode: UInt, opcode: UInt, a: Vec[UInt], b: Vec[UInt]): Vec[UInt] = {
     val u = Module(new Alu)
@@ -44,10 +46,10 @@ class AluMiter(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluMite
   same := z === z1
 }
 
-class AluSpecTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluSpecTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
-  "Alu should work" in {
-    test(factory()) { dut =>
+  s"$tag should pass AluSpec tests" in {
+    test(factory()).withAnnotations(annons) { dut =>
       dut.mode.poke(1)
 
       dut.opcode.poke(0)
@@ -194,10 +196,10 @@ class AluSpecTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselScala
   }
 }
 
-class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluRandomTester(tag: String, factory : () => AluIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
-  "Alu should work" in {
-    test(factory()) { dut =>
+  s"$tag should pass AluRandom tests" in {
+    test(factory()).withAnnotations(annons) { dut =>
 
       def alu_aux(opcode: BigInt, a: Seq[BigInt], b: Seq[BigInt], mask: BigInt) : Seq[BigInt] = {
         for {(aa, bb) <- a zip b} yield opcode.toInt match {
@@ -272,10 +274,10 @@ class AluRandomTester(factory : () => AluIfc) extends AnyFreeSpec with ChiselSca
   }
 }
 
-class AluMiterTester(factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester {
+class AluMiterTester(tag: String, factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
-  "Alu should work" in {
-    test(factory()) { dut =>
+  s"$tag should pass AluMiter tests" in {
+    test(factory()).withAnnotations(annons) { dut =>
 
       def set_and_check(mode: Int, opcode: Int,
         a : Seq[BigInt], b : Seq[BigInt]) : Unit = {
@@ -316,8 +318,8 @@ class AluMiterTester(factory : () => AluMiterIfc) extends AnyFreeSpec with Chise
   }
 }
 
-class AluSpecTest extends AluSpecTester(() => new Alu) 
-class AluMMXSpecTest extends AluSpecTester(() => new AluMMX)
-class AluMMXRandomTest extends AluRandomTester(() => new AluMMX)
-class AluMiterTest extends AluMiterTester(() => new AluMiter(() => new Alu, () => new AluMMX))
-class AluMiterAltTest extends AluMiterTester(() => new AluMiterAlt(AluObj.apply, AluMMXObj.apply))
+class AluSpecTest extends AluSpecTester("Alu", () => new Alu) 
+class AluMMXSpecTest extends AluSpecTester("AluMMX", () => new AluMMX)
+class AluMMXRandomTest extends AluRandomTester("AluMMX", () => new AluMMX)
+class AluMiterTest extends AluMiterTester("AluMiter_Alu_AluMMX",  () => new AluMiter(() => new Alu, () => new AluMMX))
+class AluMiterAltTest extends AluMiterTester("AluMiterAlt_Alu_AltMMX", () => new AluMiterAlt(AluObj.apply, AluMMXObj.apply))

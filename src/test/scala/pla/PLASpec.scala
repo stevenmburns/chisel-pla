@@ -6,11 +6,12 @@ import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
 import chisel3.experimental.BundleLiterals._
+import testutil._
 
-class MajSpec extends AnyFreeSpec with ChiselScalatestTester {
+class MajSpec extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   "Maj should calculate 3-input majority" in {
-    test(new Pla(Seq("11-", "-11", "1-1"))) { dut =>
+    test(new Pla(Seq("11-", "-11", "1-1"))).withAnnotations(annons) { dut =>
 
       dut.inp.poke(0)
       dut.clock.step()
@@ -48,10 +49,10 @@ class MajSpec extends AnyFreeSpec with ChiselScalatestTester {
   }
 }
 
-class XorSpec extends AnyFreeSpec with ChiselScalatestTester {
+class XorSpec extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
   "Xor should calculate three input parity" in {
-    test(new Pla(Seq("100", "010", "001", "111"))) { dut =>
+    test(new Pla(Seq("100", "010", "001", "111"))).withAnnotations(annons) { dut =>
 
       dut.inp.poke(0)
       dut.clock.step()

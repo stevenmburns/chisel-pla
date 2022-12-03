@@ -8,12 +8,12 @@ import scala.util.Random
 
 import scala.collection.mutable
 import scala.math
+import testutil._
 
+class StringCellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
-class StringCellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester {
-
-  s"$tag should work" in {
-    test(factory()) { dut =>
+  s"$tag should work with StringCellArrayTester" in {
+    test(factory()).withAnnotations(annons) { dut =>
 
       val delay = dut.delay
 
@@ -48,7 +48,7 @@ class StringCellArrayTester( tag : String, factory : () => CellArrayIfc[UInt,UIn
 }
 
 
-class StringCellArrayTest extends StringCellArrayTester( "StringCellArrayTest", () => {
+class StringCellArrayTest extends StringCellArrayTester( "StringCellArray", () => {
   val (protoD,protoS) = (UInt(7.W),UInt(8.W))
   new CellArray( 9, 9, protoD, protoS, (i,j) => new Cell( protoD, protoS)(), Cell.boundary)
 })

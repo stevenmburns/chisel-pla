@@ -12,6 +12,20 @@ class FifoIfc[T <: Data](gen: T) extends Module {
   })
 }
 
+class QueueFifoAlt[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
+  val m = Module(new Queue(gen, 16))
+  m.io.enq.valid := io.inp.valid
+  m.io.enq.bits := io.inp.bits
+  io.inp.ready := m.io.enq.ready
+
+  io.out <> m.io.deq
+  override val desiredName = s"QueueFifoAlt_${n}_${gen.getWidth}"
+}
+
+class QueueFifo[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
+  io.out <> Queue(io.inp, n)
+  override val desiredName = s"QueueFifo_${n}_${gen.getWidth}"
+}
 
 class BlockedStage[T <: Data](gen: T) extends FifoIfc(gen) {
   val out_valid = RegInit(false.B)
@@ -146,16 +160,20 @@ class Chain[T <: Data](n : Int, gen: T, factory: (T) => FifoIfc[T]) extends Fifo
   override val desiredName = s"Chain_${n}_${nm}_${gen.getWidth}"
 }
 
+object MainDecoupledStage extends App {
+  emitVerilog(new DecoupledStage(UInt(16.W)))
+}
+
+object MainMooreStage extends App {
+  emitVerilog(new MooreStage(UInt(16.W)))
+}
+
 object MainBlockedStage extends App {
   emitVerilog(new BlockedStage(UInt(16.W)))
 }
 
 object MainHalfStage extends App {
   emitVerilog(new HalfStage(UInt(16.W)))
-}
-
-object MainDecoupledStage extends App {
-  emitVerilog(new DecoupledStage(UInt(16.W)))
 }
 
 object MainChain_8_DecoupledStage_16 extends App {
@@ -166,14 +184,14 @@ object MainChain_8_MooreStage_16 extends App {
   emitVerilog(new Chain(8, UInt(16.W), (x: UInt) => new MooreStage(x)))
 }
 
-object MainChain_8_HalfStage_16 extends App {
-  emitVerilog(new Chain(8, UInt(16.W), (x: UInt) => new HalfStage(x)))
-}
-
 object MainChain_8_BlockedStage_16 extends App {
   emitVerilog(new Chain(8, UInt(16.W), (x: UInt) => new BlockedStage(x)))
 }
 
-object MainMooreStage extends App {
-  emitVerilog(new MooreStage(UInt(16.W)))
+object MainChain_8_HalfStage_16 extends App {
+  emitVerilog(new Chain(8, UInt(16.W), (x: UInt) => new HalfStage(x)))
+}
+
+object MainQueueFifo_8_16 extends App {
+  emitVerilog(new QueueFifo(8, UInt(16.W)))
 }

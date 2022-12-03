@@ -3,10 +3,11 @@ package med
 import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
+import testutil._
 
-class TSRTester(factory : () => TappedShiftRegisterModule) extends AnyFreeSpec with ChiselScalatestTester {
+class TSRTester(factory : () => TappedShiftRegisterModule) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
   "Tapped Shift Register should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       dut.io.inp.poke(47)
 

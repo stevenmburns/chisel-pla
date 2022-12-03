@@ -8,13 +8,13 @@ import scala.util.Random
 
 import scala.collection.mutable
 import scala.math
+import testutil._
 
-
-class CellTester( tag : String, factory : () => CellIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester {
+class CellTester( tag : String, factory : () => CellIfc[UInt,UInt]) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
 
 
   s"$tag should work" in {
-    test(factory()) { dut =>
+    test(factory()).withAnnotations(annons) { dut =>
 
       dut.io.row.poke(0)
       dut.io.col.poke(0)
