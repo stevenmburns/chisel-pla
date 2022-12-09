@@ -13,7 +13,7 @@ class FifoIfc[T <: Data](gen: T) extends Module {
 }
 
 class QueueFifoAlt[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
-  val m = Module(new Queue(gen, 16))
+  val m = Module(new Queue(gen, n))
   m.io.enq.valid := io.inp.valid
   m.io.enq.bits := io.inp.bits
   io.inp.ready := m.io.enq.ready
