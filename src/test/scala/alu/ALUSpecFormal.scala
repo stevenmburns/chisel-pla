@@ -9,7 +9,8 @@ import chisel3.experimental.BundleLiterals._
 import testutil._
 
 class AluMiterWithChecker(factory0 : () => AluIfc, factory1 : () => AluIfc) extends AluMiter(factory0, factory1) {
-  assert(same || (mode =/= 1.U && mode =/= 2.U && mode =/= 4.U))
+  assume(mode === 1.U || mode === 2.U || mode === 4.U)
+  assert(same)
 }
 
 class AluMiterFormalChecker(tag: String, factory : () => AluMiterIfc) extends AnyFreeSpec with ChiselScalatestTester with TestParams with Formal {
@@ -20,5 +21,5 @@ class AluMiterFormalChecker(tag: String, factory : () => AluMiterIfc) extends An
   }
 }
 
-class AluMiterFormalCheck extends AluMiterTester("AluMiter_Alu_AluMMX",  () => new AluMiterWithChecker(() => new Alu, () => new AluMMX))
+class AluMiterFormalCheck extends AluMiterFormalChecker("AluMiter_Alu_AluMMX",  () => new AluMiterWithChecker(() => new Alu, () => new AluMMX))
 

@@ -8,7 +8,7 @@ import testutil._
 
 
 
-class FifoFormalSpecModule(depth: Int, factory : () => FifoIfc[UInt]) extends Module {
+class FifoFormalSpecModule[T <: Data](depth: Int, factory : () => FifoIfc[T]) extends Module {
   // instantiate DUT and create wrapper
   val dut = Module(factory())
   val io = IO(chiselTypeOf(dut.io)) ; io <> dut.io
