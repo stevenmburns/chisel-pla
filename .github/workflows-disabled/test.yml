@@ -19,6 +19,10 @@ jobs:
       #  uses: jodersky/setup-mill@v0.2.3
       #  with:
       #    mill-version: 0.9.7
+      - name: Install OSS CAD Tools (for model checking)
+        uses: YosysHQ/setup-oss-cad-suite@v1
+        with:
+          osscadsuite-version: '2022-12-08'
       - name: Cache Scala
         uses: coursier/cache-action@v5
       - name: SBT Test
