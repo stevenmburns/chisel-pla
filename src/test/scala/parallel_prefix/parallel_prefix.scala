@@ -100,12 +100,12 @@ class PriorityEncoderSpecTest extends PriorityEncoderSpecTester("PriorityEncoder
 
 class ParallelPrefixOrChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
   val DefaultAnnos = Seq(BoundedCheck(1), Z3EngineAnnotation)
-  val tag = "SerialOr and SklanskyFlatOr"
+  val tag = "SerialOr and KoggeStoneOr"
   val gen = Bool()
-  val n = 5
+  val n = 64
   val op = {(x: Bool, y: Bool) => (x | y)}
   val factory0 = () => new Serial(gen, n, op)
-  val factory1 = () => new SklanskyFlat(gen, n, op)
+  val factory1 = () => new KoggeStone(gen, n, op)
   s"$tag should be formally equivalent" in {
     verify(new ParallelPrefixMiter(gen, n, factory0, factory1), DefaultAnnos)
   }
@@ -113,12 +113,12 @@ class ParallelPrefixOrChecker extends AnyFreeSpec with ChiselScalatestTester wit
 
 class ParallelPrefixKPGChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
   val DefaultAnnos = Seq(BoundedCheck(1), Z3EngineAnnotation)
-  val tag = "SerialKPG and SklanskyFlatKPG"
+  val tag = "SerialKPG and BrentKungKPG"
   val gen = new KPG()
   val n = 64
   val op = KPG.op(_, _)
   val factory0 = () => new Serial(gen, n, op)
-  val factory1 = () => new SklanskyFlat(gen, n, op)
+  val factory1 = () => new BrentKung(gen, n, op)
   s"$tag should be formally equivalent" in {
     verify(new ParallelPrefixMiter(gen, n, factory0, factory1), DefaultAnnos)
   }

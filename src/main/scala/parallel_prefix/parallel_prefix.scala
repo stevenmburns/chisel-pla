@@ -83,6 +83,55 @@ class SklanskyFlat[T <: Data](gen: T, n: Int, op: (T, T) => T)
   io.out := aux(io.inp)
 }
 
+class KoggeStone[T <: Data](gen: T, n: Int, op: (T, T) => T)
+    extends ParallelPrefix(gen, n) {
+
+  val work = scala.collection.mutable.ArrayBuffer[T]()
+  io.inp.foreach{ work.append(_) }
+
+  var skip = 1
+  while (skip < n) {
+    for {i <- (skip until n).reverse} {
+      work(i) = op(work(i- skip), work(i))
+    }
+    skip *= 2
+  }
+
+  io.out := VecInit(work.toIndexedSeq)
+}
+
+class BrentKung[T <: Data](gen: T, n: Int, op: (T, T) => T)
+    extends ParallelPrefix(gen, n) {
+
+  val work = scala.collection.mutable.ArrayBuffer[T]()
+  io.inp.foreach{ work.append(_) }
+
+  // Reduce phase
+  var skip = 2
+  while (skip < n) {
+    for {i <- (skip-1) until n} {
+      work(i) = op(work(i - skip/2), work(i))
+    }
+    skip *= 2
+  }
+
+  // Prefix phase
+  skip = helpers.largestPow2LessThan(n).toInt
+  while (skip > 2) {
+    for {i <- (3*(skip/2)-1) until (n,skip)} {
+      work(i) = op(work(i - skip/2), work(i))
+    }
+    skip /= 2
+  }
+
+  // Final row
+  for {i <- 2 until (n,2)} {
+    work(i) = op(work(i-1), work(i))
+  }
+
+  io.out := VecInit(work.toIndexedSeq)
+}
+
 class KPG extends Bundle {
   val notk = Bool()
   val g = Bool()
@@ -159,6 +208,11 @@ object MainSerialOr extends App {
 object MainSklanskyOr extends App {
   println(getVerilogString(
     new SklanskyFlat(Bool(), 5, {(x: Bool, y: Bool) => (x | y)})))
+}
+
+object MainKoggeStoneOr extends App {
+  println(getVerilogString(
+    new KoggeStone(Bool(), 5, {(x: Bool, y: Bool) => (x | y)})))
 }
 
 object MainSklanskyKPG extends App {
