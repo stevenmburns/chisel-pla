@@ -132,6 +132,38 @@ class BrentKung[T <: Data](gen: T, n: Int, op: (T, T) => T)
   io.out := VecInit(work.toIndexedSeq)
 }
 
+class HanCarlson[T <: Data](gen: T, n: Int, op: (T, T) => T)
+    extends ParallelPrefix(gen, n) {
+
+  val work = scala.collection.mutable.ArrayBuffer[T]()
+  io.inp.foreach{ work.append(_) }
+
+  // First row
+  var skip = 2
+  for {i <- (skip-1) until (n, skip)} {
+    work(i) = op(work(i - skip/2), work(i))
+  }
+
+  // Mid-section
+  while (skip < n) {
+    var last_odd = n - 1
+    if (last_odd % 2 == 0) {
+      last_odd -= 1
+    }
+    for {i <- last_odd to (skip,-2)} {
+      work(i) = op(work(i - skip), work(i))
+    }
+    skip *= 2
+  }
+
+  // Final row
+  for {i <- 2 until (n,2)} {
+    work(i) = op(work(i-1), work(i))
+  }
+
+  io.out := VecInit(work.toIndexedSeq)
+}
+
 class KPG extends Bundle {
   val notk = Bool()
   val g = Bool()

@@ -93,7 +93,12 @@ class PriorityEncoderSpecTester(tag: String, factory : () => PriorityEncoder) ex
 }
 
 
-class AdderSpecTest extends AdderSpecTester("Adder5", () => new Adder(18, () => new SklanskyFlat(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecKoggeStoneTest extends AdderSpecTester("AdderKoggeStone", () => new Adder(18, () => new KoggeStone(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecBrentKungTest extends AdderSpecTester("AdderBruntKung", () => new Adder(18, () => new BrentKung(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecHanCarlsonTest extends AdderSpecTester("AdderHanCarlson", () => new Adder(18, () => new HanCarlson(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecSklanskyFlatTest extends AdderSpecTester("AdderSklanskyFlat", () => new Adder(18, () => new SklanskyFlat(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecSklanskyTest extends AdderSpecTester("AdderSklansky", () => new Adder(18, () => new Sklansky(new KPG(), 18, KPG.op(_, _))))
+class AdderSpecSerialTest extends AdderSpecTester("AdderSerial", () => new Adder(18, () => new Serial(new KPG(), 18, KPG.op(_, _))))
 
 class PriorityEncoderSpecTest extends PriorityEncoderSpecTester("PriorityEncoder18", () => new PriorityEncoder(18, () => new SklanskyFlat(Bool(), 18, {(a: Bool, b: Bool) => a | b})))
 
@@ -113,12 +118,12 @@ class ParallelPrefixOrChecker extends AnyFreeSpec with ChiselScalatestTester wit
 
 class ParallelPrefixKPGChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
   val DefaultAnnos = Seq(BoundedCheck(1), Z3EngineAnnotation)
-  val tag = "SerialKPG and BrentKungKPG"
+  val tag = "SerialKPG and HanCarlsonKPG"
   val gen = new KPG()
   val n = 64
   val op = KPG.op(_, _)
   val factory0 = () => new Serial(gen, n, op)
-  val factory1 = () => new BrentKung(gen, n, op)
+  val factory1 = () => new HanCarlson(gen, n, op)
   s"$tag should be formally equivalent" in {
     verify(new ParallelPrefixMiter(gen, n, factory0, factory1), DefaultAnnos)
   }
@@ -139,10 +144,10 @@ class PriorityEncoderChecker extends AnyFreeSpec with ChiselScalatestTester with
 
 class AdderChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
   val DefaultAnnos = Seq(BoundedCheck(1), Z3EngineAnnotation)
-  val tag = "SerialAdder and SklanskyFlatAdder"
+  val tag = "SerialAdder and HanCarlsonAdder"
   val n = 5
   val factory0 = () => new AdderSimple(n)
-  val factory1 = () => new Adder(5, () => new SklanskyFlat(new KPG(), 5, KPG.op(_, _)))
+  val factory1 = () => new Adder(5, () => new HanCarlson(new KPG(), 5, KPG.op(_, _)))
   s"$tag should be formally equivalent" in {
     verify(new AdderMiter(n, factory0, factory1), DefaultAnnos)
   }
