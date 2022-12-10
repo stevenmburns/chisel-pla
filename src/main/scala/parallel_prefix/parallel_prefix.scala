@@ -146,11 +146,7 @@ class HanCarlson[T <: Data](gen: T, n: Int, op: (T, T) => T)
 
   // Mid-section
   while (skip < n) {
-    var last_odd = n - 1
-    if (last_odd % 2 == 0) {
-      last_odd -= 1
-    }
-    for {i <- last_odd to (skip,-2)} {
+    for {i <- ((skip+1) until (n,2)).reverse} {
       work(i) = op(work(i - skip), work(i))
     }
     skip *= 2

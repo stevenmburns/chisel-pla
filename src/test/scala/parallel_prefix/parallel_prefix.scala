@@ -135,7 +135,7 @@ class PriorityEncoderChecker extends AnyFreeSpec with ChiselScalatestTester with
   val n = 5
   val op = (a: Bool, b: Bool) => a | b
   val factory0 = () => new PriorityEncoderSimple(n)
-  val factory1 = () => new PriorityEncoder(5, () => new SklanskyFlat(Bool(), 5, op))
+  val factory1 = () => new PriorityEncoder(n, () => new SklanskyFlat(Bool(), n, op))
   s"$tag should be formally equivalent" in {
     verify(new PriorityEncoderMiter(n, factory0, factory1), DefaultAnnos)
   }
@@ -145,9 +145,9 @@ class PriorityEncoderChecker extends AnyFreeSpec with ChiselScalatestTester with
 class AdderChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
   val DefaultAnnos = Seq(BoundedCheck(1), Z3EngineAnnotation)
   val tag = "SerialAdder and HanCarlsonAdder"
-  val n = 5
+  val n = 17
   val factory0 = () => new AdderSimple(n)
-  val factory1 = () => new Adder(5, () => new HanCarlson(new KPG(), 5, KPG.op(_, _)))
+  val factory1 = () => new Adder(n, () => new HanCarlson(new KPG(), n, KPG.op(_, _)))
   s"$tag should be formally equivalent" in {
     verify(new AdderMiter(n, factory0, factory1), DefaultAnnos)
   }
