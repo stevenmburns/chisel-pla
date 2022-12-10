@@ -83,7 +83,6 @@ class SklanskyFlat[T <: Data](gen: T, n: Int, op: (T, T) => T)
   io.out := aux(io.inp)
 }
 
-
 class KPG extends Bundle {
   val notk = Bool()
   val g = Bool()
@@ -112,20 +111,10 @@ class PriorityEncoderSimple(n: Int) extends PriorityEncoderIfc(n) {
 
 class PriorityEncoder(n: Int, factory: () => ParallelPrefix[Bool]) extends PriorityEncoderIfc(n) {
   val u = Module(factory())
-
-  u.io.inp := VecInit(IndexedSeq.tabulate(n){ i =>
-    io.a(i)
-  })
-
-  io.z := VecInit(IndexedSeq.tabulate(n){ i =>
-    if (i > 0) {
-      u.io.out(i) && !u.io.out(i-1)
-    } else {
-      u.io.out(i)
-    }
-  }).asUInt
+  u.io.inp := io.a.asBools
+  val out = u.io.out.asUInt
+  io.z := out & ~(out << 1)
 }
-
 
 class AdderIfc(val n: Int) extends Module {
   val io = IO(new Bundle {
@@ -161,8 +150,6 @@ class Adder(n: Int, factory: () => ParallelPrefix[KPG]) extends AdderIfc(n) {
   }).asUInt
 
 }
-
-
 
 object MainSerialOr extends App {
   println(getVerilogString(

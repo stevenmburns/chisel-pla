@@ -72,10 +72,30 @@ class AdderSpecTester(tag: String, factory : () => Adder) extends AnyFreeSpec wi
   }
 }
 
-class AdderSpecTest extends AdderSpecTester("Adder5", () => new Adder(128, () => new SklanskyFlat(new KPG(), 128, KPG.op(_, _))))
+class PriorityEncoderSpecTester(tag: String, factory : () => PriorityEncoder) extends AnyFreeSpec with ChiselScalatestTester with TestParams {
+
+  s"$tag should pass PriorityEncoderSpec tests" in {
+    test(factory()).withAnnotations(annons) { dut =>
+
+      val rnd = new scala.util.Random()
+
+      for {_ <- 0 until 1000} {
+        val a = BigInt(dut.n, rnd)
+        // 00101000
+        // 00100111
+        val z = a & ~(a-1)
+        dut.io.a.poke(a.U)
+        dut.clock.step()
+        dut.io.z.expect(z.U)
+      }
+    }
+  }
+}
 
 
+class AdderSpecTest extends AdderSpecTester("Adder5", () => new Adder(18, () => new SklanskyFlat(new KPG(), 18, KPG.op(_, _))))
 
+class PriorityEncoderSpecTest extends PriorityEncoderSpecTester("PriorityEncoder18", () => new PriorityEncoder(18, () => new SklanskyFlat(Bool(), 18, {(a: Bool, b: Bool) => a | b})))
 
 
 class ParallelPrefixOrChecker extends AnyFreeSpec with ChiselScalatestTester with Formal {
