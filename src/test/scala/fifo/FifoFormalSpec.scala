@@ -8,7 +8,7 @@ import testutil._
 
 
 
-class FifoFormalSpecModule(depth: Int, factory : () => FifoIfc[UInt]) extends Module {
+class FifoFormalSpecModule[T <: Data](depth: Int, factory : () => FifoIfc[T]) extends Module {
   // instantiate DUT and create wrapper
   val dut = Module(factory())
   val io = IO(chiselTypeOf(dut.io)) ; io <> dut.io
@@ -41,3 +41,8 @@ class Chain_8_HalfStage_16SpecFormal extends FifoFormalSpec ("Chain_8_HalfStage"
 // depth reduced to make formal check faster
 class QueueFifo_5_16SpecFormal extends FifoFormalSpec ("QueueFifo_5", () => new QueueFifo(5, UInt(16.W)), depth = 5)
 class QueueFifoAlt_5_16SpecFormal extends FifoFormalSpec ("QueueFifoAlt_5", () => new QueueFifoAlt(5, UInt(16.W)), depth = 5)
+
+// 
+class Credit_Chain_8_DecoupledStage_16SpecFormal extends FifoFormalSpec ("Credit_Chain_8_DecoupledStage", () => new Credit(8, UInt(16.W), (x: UInt) => new DecoupledStage(x)), depth = 8)
+
+class CreditSplit_8_16SpecFormal extends FifoFormalSpec ("CreditSplit_8", () => new CreditSplit(8, UInt(16.W)), depth = 8)

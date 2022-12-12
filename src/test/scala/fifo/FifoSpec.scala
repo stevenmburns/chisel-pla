@@ -81,3 +81,7 @@ class Chain_8_HalfStage_16SpecTest extends FifoSpecTester("Chain_8_HalfStage", (
 class QueueFifo_8_16SpecTest extends FifoSpecTester("QueueFifo_8", () => new QueueFifo(8, UInt(16.W)))
 class QueueFifoAlt_8_16SpecTest extends FifoSpecTester("QueueFifoAlt_8", () => new QueueFifoAlt(8, UInt(16.W)))
 
+class Credit_Chain_8_DecoupledStage_16SpecTest extends FifoSpecTester("Credit_Chain_8_DecoupledStage", () => new Credit(8, UInt(16.W), (x: UInt) => new DecoupledStage(x)))
+
+class CreditSplit_8_16SpecTest extends FifoSpecTester("CreditSplit_8", () => new CreditSplit(8, UInt(16.W)))
+

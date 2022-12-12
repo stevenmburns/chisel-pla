@@ -13,7 +13,7 @@ class FifoIfc[T <: Data](gen: T) extends Module {
 }
 
 class QueueFifoAlt[T <: Data](n : Int, gen: T) extends FifoIfc(gen) {
-  val m = Module(new Queue(gen, 16))
+  val m = Module(new Queue(gen, n))
   m.io.enq.valid := io.inp.valid
   m.io.enq.bits := io.inp.bits
   io.inp.ready := m.io.enq.ready
@@ -160,6 +160,81 @@ class Chain[T <: Data](n : Int, gen: T, factory: (T) => FifoIfc[T]) extends Fifo
   override val desiredName = s"Chain_${n}_${nm}_${gen.getWidth}"
 }
 
+class Credit[T <: Data](n: Int, gen: T, factory : (T) => FifoIfc[T]) extends FifoIfc(gen) {
+
+  val fifo = Module( new Chain(n, gen, factory))
+
+  override val desiredName = s"Credit_${fifo.name}"
+
+  fifo.io.inp <> io.inp
+
+  val credits = RegInit( init=n.U)
+
+  when (         fifo.io.inp.fire && !io.out.fire) {
+    credits := credits - 1.U
+  } .elsewhen ( !fifo.io.inp.fire &&  io.out.fire) {
+    credits := credits + 1.U
+  }
+
+  val queue = Module( new Queue( io.out.bits.cloneType, n, flow=true))
+
+  queue.io.enq <> fifo.io.out
+
+  io.out <> queue.io.deq
+
+// The challenge is to ensure that queue.io.enq.ready is always true
+//    by controlling (deasserting more often) fifo.io.inp.valid and io.inp.ready
+// I weakened the assertion with the last valid is false (causing all the readys (enables) to be true)
+  assert( queue.io.enq.ready || !fifo.io.out.valid)
+
+  when ( credits === 0.U && !io.out.fire) {
+    io.inp.ready := false.B
+    fifo.io.inp.valid := false.B
+  }
+
+// Reap the benefits
+  fifo.io.out.ready := true.B
+
+//  printf( "credits: %d mValid: %d mReady: %d\n", credits, fifo.io.out.valid, queue.io.enq.ready)
+
+}
+
+class CreditSplit[T <: Data](n: Int, gen: T) extends FifoIfc(gen) {
+  override val desiredName = s"CreditSplit_${n}_${gen.getWidth}"
+
+  val queue = Module( new Queue( gen.cloneType, n, flow=true))
+  val credit_pipe_out = ShiftRegister(io.out.fire, n, false.B, true.B) // in, n, resetData, en
+  val data_pipe = Module(new Pipe(io.inp.bits.cloneType, n))
+
+  val credits = RegInit( init=n.U)
+  when (         io.inp.fire && !credit_pipe_out) {
+    credits := credits - 1.U
+  } .elsewhen ( !io.inp.fire &&  credit_pipe_out) {
+    credits := credits + 1.U
+  }
+
+  queue.io.enq.valid := data_pipe.io.deq.valid
+  queue.io.enq.bits := data_pipe.io.deq.bits
+
+  assert( queue.io.enq.ready || !data_pipe.io.deq.valid)
+
+  io.out <> queue.io.deq
+
+  data_pipe.io.enq.valid :=  io.inp.valid
+  data_pipe.io.enq.bits :=  io.inp.bits
+
+  io.inp.ready := true.B
+
+  when ( credits === 0.U && !credit_pipe_out) {
+    io.inp.ready := false.B
+    data_pipe.io.enq.valid := false.B
+  }
+
+}
+
+
+
+
 object MainDecoupledStage extends App {
   emitVerilog(new DecoupledStage(UInt(16.W)))
 }
@@ -194,4 +269,12 @@ object MainChain_8_HalfStage_16 extends App {
 
 object MainQueueFifo_8_16 extends App {
   emitVerilog(new QueueFifo(8, UInt(16.W)))
+}
+
+object MainCredit_Chain_8_DecoupledStage_16 extends App {
+  emitVerilog(new Credit(8, UInt(16.W), (x: UInt) => new DecoupledStage(x)))
+}
+
+object MainCreditSplit_8_16 extends App {
+  emitVerilog(new CreditSplit(8, UInt(16.W)))
 }
